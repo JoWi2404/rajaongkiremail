@@ -1,7 +1,6 @@
-import 'dart:convert';
-
+// import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_week6/services/services.dart';
+// import 'package:flutter_week6/services/services.dart';
 import 'package:flutter_week6/views/pages/pages.dart';
 
 void main() {
@@ -28,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const Sendmail(),
+      home: const Ongkirpage(),
     );
   }
 }

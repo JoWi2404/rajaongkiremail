@@ -9,6 +9,7 @@ import 'package:flutter_week6/models/models.dart';
 import 'package:flutter_week6/services/services.dart';
 import 'package:flutter_week6/views/widgets/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lazy_loading_list/lazy_loading_list.dart';
 import 'package:uni_links/uni_links.dart';
 
 part 'congratulationpage.dart';

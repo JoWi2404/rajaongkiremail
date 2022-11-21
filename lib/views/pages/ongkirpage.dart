@@ -9,7 +9,7 @@ class Ongkirpage extends StatefulWidget {
 
 class _OngkirpageState extends State<Ongkirpage> {
   bool isLoading = false;
-  String dropdownvalue = 'jne';
+  String selectedkurir = 'jne';
   var kurir = ['jne', 'pos', 'tiki'];
 
   final ctrlBerat = TextEditingController();
@@ -21,6 +21,7 @@ class _OngkirpageState extends State<Ongkirpage> {
   dynamic selectedprovDes;
 
   dynamic cityId;
+  dynamic cityIdDes;
   dynamic cityData;
   dynamic cityDataDes;
   dynamic selectedCity;
@@ -44,6 +45,18 @@ class _OngkirpageState extends State<Ongkirpage> {
       });
     });
     return listCity;
+  }
+
+  List<Costs> listCosts = [];
+  Future<dynamic> getCostsData() async {
+    await RajaOngkirService.getMyOngKir(
+            cityId, cityIdDes, int.parse(ctrlBerat.text), selectedkurir)
+        .then((value) {
+      setState(() {
+        listCosts = value;
+        isLoading = false;
+      });
+    });
   }
 
   @override
@@ -70,7 +83,7 @@ class _OngkirpageState extends State<Ongkirpage> {
                 children: [
                   //Flexible untuk form
                   Flexible(
-                    flex: 6,
+                    flex: 3,
                     child: Column(
                       children: [
                         Padding(
@@ -79,7 +92,7 @@ class _OngkirpageState extends State<Ongkirpage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               DropdownButton(
-                                  value: dropdownvalue,
+                                  value: selectedkurir,
                                   icon: const Icon(Icons.arrow_drop_down),
                                   items: kurir.map((String items) {
                                     return DropdownMenuItem(
@@ -89,7 +102,7 @@ class _OngkirpageState extends State<Ongkirpage> {
                                   }).toList(),
                                   onChanged: (String? newValue) {
                                     setState(() {
-                                      dropdownvalue = newValue!;
+                                      selectedkurir = newValue!;
                                     });
                                   }),
                               SizedBox(
@@ -341,7 +354,7 @@ class _OngkirpageState extends State<Ongkirpage> {
                                                         setState(() {
                                                           selectedcityDes =
                                                               newValue;
-                                                          cityId =
+                                                          cityIdDes =
                                                               selectedcityDes
                                                                   .cityId;
                                                         });
@@ -365,23 +378,17 @@ class _OngkirpageState extends State<Ongkirpage> {
                                   width: 150,
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      if (selectedProv == null ||
-                                          selectedprovDes == null ||
-                                          selectedCity == null ||
-                                          selectedcityDes == null) {
-                                        Fluttertoast.showToast(
-                                            msg:
-                                                "You must choose destination or origin first!",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            backgroundColor: Colors.redAccent,
-                                            textColor: Colors.black);
+                                      if (cityId == null ||
+                                          cityIdDes == null ||
+                                          selectedkurir.isEmpty ||
+                                          ctrlBerat.text.isEmpty) {
+                                        UiToast.toastErr(
+                                            "Semua field harus diisi!");
                                       } else {
-                                        Fluttertoast.showToast(
-                                            msg: 'Origin: ${selectedCity.cityName}' +
-                                                ', Destination : ${selectedcityDes.cityName}',
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            backgroundColor: Colors.greenAccent,
-                                            textColor: Colors.black);
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        getCostsData();
                                       }
                                     },
                                     child: Text("Calculate Price Now!"),
@@ -395,8 +402,26 @@ class _OngkirpageState extends State<Ongkirpage> {
 
                   Flexible(
                     flex: 2,
-                    child: Container(),
-                  )
+                    child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: listCosts.isEmpty
+                            ? const Align(
+                                alignment: Alignment.center,
+                                child: Text("Tidak ada data"),
+                              )
+                            : ListView.builder(
+                                itemCount: listCosts.length,
+                                itemBuilder: (context, index) {
+                                  return LazyLoadingList(
+                                      loadMore: () {},
+                                      initialSizeOfItems: 10,
+                                      child: CardOngkir(listCosts[index]),
+                                      index: index,
+                                      hasMore: true);
+                                },
+                              )),
+                  ),
                 ],
               )),
           isLoading == true ? UiLoading.loadingBlock() : Container(),
